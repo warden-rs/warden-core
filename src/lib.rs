@@ -1,14 +1,13 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+//! Core
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#![warn(
+    missing_docs,
+    rustdoc::broken_intra_doc_links,
+    missing_debug_implementations
+)]
+/// Protobuf types
+pub mod google;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+/// ISO20022 messages
+#[allow(missing_docs)]
+pub mod iso20022;

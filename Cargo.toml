@@ -4,3 +4,21 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+prost = "0.13.5"
+serde = { version = "1.0.219", optional = true }
+time = { version = "0.3.41", optional = true }
+tonic = "0.13.0"
+tonic-types = "0.13.0"
+
+[build-dependencies]
+tonic-build = { version = "0.13.0", features = ["cleanup-markdown"] }
+
+[features]
+default = []
+iso20022 = []
+serde = ["dep:serde", "serde/derive"]
+time = ["dep:time"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
