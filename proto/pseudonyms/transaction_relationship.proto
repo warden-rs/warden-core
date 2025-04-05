@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package pseudonyms;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+// TransactionRelationship message definition
+message TransactionRelationship {
+  string from = 1;
+  string to = 2;
+  optional double amt = 3;
+  optional string ccy = 4;
+  google.protobuf.Timestamp cre_dt_tm = 5;
+  string end_to_end_id = 6;
+  optional double lat = 7;
+  optional double long = 8;
+  string msg_id = 9;
+  string pmt_inf_id = 10;
+  string tx_tp = 11;
+  optional string tx_sts = 12;
+}

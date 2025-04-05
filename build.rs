@@ -2,6 +2,10 @@ enum Entity {
     Pacs008,
     Pacs002,
     TypologyConfiguration,
+    TransactionRelationship,
+    Account,
+    Entity,
+    AccountHolder,
 }
 
 impl Entity {
@@ -9,6 +13,10 @@ impl Entity {
         match self {
             Entity::Pacs002 | Entity::Pacs008 => "iso20022",
             Entity::TypologyConfiguration => "typology_configuration",
+            Entity::TransactionRelationship
+            | Entity::Entity
+            | Entity::Account
+            | Entity::AccountHolder => "pseudonyms",
         }
         .into()
     }
@@ -17,6 +25,10 @@ impl Entity {
             Entity::Pacs008 => "proto/iso20022/pacs.008.001.12.proto",
             Entity::Pacs002 => "proto/iso20022/pacs.002.001.12.proto",
             Entity::TypologyConfiguration => "proto/configuration/typology.proto",
+            Entity::TransactionRelationship => "proto/pseudonyms/transaction_relationship.proto",
+            Entity::Account => "proto/pseudonyms/account.proto",
+            Entity::Entity => "proto/pseudonyms/entity.proto",
+            Entity::AccountHolder => "proto/pseudonyms/account_holder.proto",
         }
         .into()
     }
@@ -34,6 +46,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if cfg!(feature = "configuration") {
         protos.push(Entity::TypologyConfiguration);
+    }
+
+    if cfg!(feature = "pseudonyms") {
+        protos.push(Entity::TransactionRelationship);
+        protos.push(Entity::AccountHolder);
+        protos.push(Entity::Account);
+        protos.push(Entity::Entity);
     }
 
     let out_dir = std::path::PathBuf::from(std::env::var("OUT_DIR")?);
