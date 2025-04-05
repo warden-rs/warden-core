@@ -11,3 +11,6 @@ pub mod google;
 /// ISO20022 messages
 #[allow(missing_docs)]
 pub mod iso20022;
+
+#[cfg(feature = "configuration")]
+pub mod configuration;

@@ -1,12 +1,14 @@
 enum Entity {
     Pacs008,
     Pacs002,
+    TypologyConfiguration,
 }
 
 impl Entity {
     fn package(&self) -> String {
         match self {
             Entity::Pacs002 | Entity::Pacs008 => "iso20022",
+            Entity::TypologyConfiguration => "typology_configuration",
         }
         .into()
     }
@@ -14,6 +16,7 @@ impl Entity {
         match self {
             Entity::Pacs008 => "proto/iso20022/pacs.008.001.12.proto",
             Entity::Pacs002 => "proto/iso20022/pacs.002.001.12.proto",
+            Entity::TypologyConfiguration => "proto/configuration/typology.proto",
         }
         .into()
     }
@@ -27,6 +30,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if cfg!(feature = "iso20022") {
         protos.push(Entity::Pacs008);
         protos.push(Entity::Pacs002);
+    }
+
+    if cfg!(feature = "configuration") {
+        protos.push(Entity::TypologyConfiguration);
     }
 
     let out_dir = std::path::PathBuf::from(std::env::var("OUT_DIR")?);

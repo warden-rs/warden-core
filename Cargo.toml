@@ -15,6 +15,7 @@ tonic-build = { version = "0.13.0", features = ["cleanup-markdown"] }
 
 [features]
 default = []
+configuration = []
 iso20022 = []
 serde = ["dep:serde", "serde/derive"]
 time = ["dep:time"]
