@@ -42,13 +42,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let path = proto.path();
         let package = proto.package();
 
-        let config = tonic_build::configure();
+        let mut config = tonic_build::configure();
 
         #[cfg(feature = "serde")]
-        let config = config.type_attribute(
-            ".",
-            "#[derive(serde::Serialize, serde::Deserialize)] #[serde(rename_all = \"snake_case\")]",
-        );
+        {
+            config = config.type_attribute(
+                ".",
+                "#[derive(serde::Serialize, serde::Deserialize)] #[serde(rename_all = \"snake_case\")]",
+            );
+        }
+
+        #[cfg(feature = "openapi")]
+        {
+            config = config.type_attribute(".", "#[derive(utoipa::ToSchema)]");
+        }
 
         config
         .file_descriptor_set_path(out_dir.join(format!("{package}_descriptor.bin")))
