@@ -1,5 +1,5 @@
 /// Well known types
-#[cfg(feature = "iso20022")]
+#[cfg(any(feature = "iso20022", feature = "pseudonyms"))]
 pub mod protobuf {
     include!(concat!(env!("OUT_DIR"), "/google.protobuf.rs"));
 }

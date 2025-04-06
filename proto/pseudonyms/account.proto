@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package pseudonyms;
+package pseudonyms.account;
 
 import "google/protobuf/timestamp.proto";
 

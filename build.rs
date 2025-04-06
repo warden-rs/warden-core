@@ -49,10 +49,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if cfg!(feature = "pseudonyms") {
-        protos.push(Entity::TransactionRelationship);
         protos.push(Entity::AccountHolder);
         protos.push(Entity::Account);
         protos.push(Entity::Entity);
+        protos.push(Entity::TransactionRelationship);
     }
 
     let out_dir = std::path::PathBuf::from(std::env::var("OUT_DIR")?);

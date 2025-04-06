@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package pseudonyms;
+package pseudonyms.transaction_relationship;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
