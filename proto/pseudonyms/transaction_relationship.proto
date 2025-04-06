@@ -23,10 +23,10 @@ message TransactionRelationship {
 
 message CreatePseudonymRequest {
   TransactionRelationship transaction_relationship = 1;
-  optional string debtor_id = 2;
-  optional string debtor_account_id = 3;
-  optional string creditor_id = 4;
-  optional string creditor_account_id = 5;
+  string debtor_id = 2;
+  string debtor_account_id = 3;
+  string creditor_id = 4;
+  string creditor_account_id = 5;
 }
 
 service MutatePseudonym {
