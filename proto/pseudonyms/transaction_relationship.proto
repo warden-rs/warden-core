@@ -20,3 +20,15 @@ message TransactionRelationship {
   string tx_tp = 11;
   optional string tx_sts = 12;
 }
+
+message CreatePseudonymRequest {
+  TransactionRelationship transaction_relationship = 1;
+  optional string debtor_id = 2;
+  optional string debtor_account_id = 3;
+  optional string creditor_id = 4;
+  optional string creditor_account_id = 5;
+}
+
+service MutatePseudonym {
+  rpc CreatePseudonym(CreatePseudonymRequest) returns (google.protobuf.Empty);
+}
