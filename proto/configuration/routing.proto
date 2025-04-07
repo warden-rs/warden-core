@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+
+package configuration.routing;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+message RoutingConfiguration {
+  bool active = 1;
+  optional string name = 2;
+  string version = 3;
+  repeated Message messages = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+enum TxTp {
+  PACS008_001_12 = 0;
+  PACS002_001_12 = 1;
+}
+
+message Message {
+  string id = 1;
+  string version = 2;
+  TxTp tx_tp = 3;
+  repeated Typology typologies = 4;
+}
+
+message Typology {
+  string id = 1;
+  string version = 2;
+  repeated Rule rules = 3;
+}
+
+message Rule {
+  string id = 1;
+  optional string version = 2;
+}
+
+message RoutingConfigurationRequest {
+  string id = 1;
+}
+
+service QueryRouting {
+  rpc GetActiveRoutingConfiguration (google.protobuf.Empty) returns (RoutingConfiguration);
+}
+
+service MutateRouting {
+  rpc CreateRoutingConfiguration (RoutingConfiguration) returns (RoutingConfiguration);
+  rpc UpdateRoutingConfiguration (RoutingConfiguration) returns (RoutingConfiguration);
+}
+

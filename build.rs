@@ -6,13 +6,14 @@ enum Entity {
     Account,
     Entity,
     AccountHolder,
+    RoutingConfiguration,
 }
 
 impl Entity {
     fn package(&self) -> String {
         match self {
             Entity::Pacs002 | Entity::Pacs008 => "iso20022",
-            Entity::TypologyConfiguration => "typology_configuration",
+            Entity::TypologyConfiguration | Entity::RoutingConfiguration => "configuration",
             Entity::TransactionRelationship
             | Entity::Entity
             | Entity::Account
@@ -25,10 +26,25 @@ impl Entity {
             Entity::Pacs008 => "proto/iso20022/pacs.008.001.12.proto",
             Entity::Pacs002 => "proto/iso20022/pacs.002.001.12.proto",
             Entity::TypologyConfiguration => "proto/configuration/typology.proto",
+            Entity::RoutingConfiguration => "proto/configuration/routing.proto",
             Entity::TransactionRelationship => "proto/pseudonyms/transaction_relationship.proto",
             Entity::Account => "proto/pseudonyms/account.proto",
             Entity::Entity => "proto/pseudonyms/entity.proto",
             Entity::AccountHolder => "proto/pseudonyms/account_holder.proto",
+        }
+        .into()
+    }
+
+    fn descriptor(&self) -> String {
+        match self {
+            Entity::Pacs008 => "pacs008",
+            Entity::Pacs002 =>"pacs002",
+            Entity::TypologyConfiguration => "typology_configuration",
+            Entity::TransactionRelationship => "transaction_relationship",
+            Entity::Account => "account",
+            Entity::Entity => "entity",
+            Entity::AccountHolder => "account_holder",
+            Entity::RoutingConfiguration => "routing_configuration"
         }
         .into()
     }
@@ -38,7 +54,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rerun-if-changed=proto");
 
     let mut protos = vec![];
-
     if cfg!(feature = "iso20022") {
         protos.push(Entity::Pacs008);
         protos.push(Entity::Pacs002);
@@ -46,6 +61,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if cfg!(feature = "configuration") {
         protos.push(Entity::TypologyConfiguration);
+        protos.push(Entity::RoutingConfiguration);
     }
 
     if cfg!(feature = "pseudonyms") {
@@ -60,24 +76,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for proto in protos {
         let path = proto.path();
         let package = proto.package();
+        let descriptor = proto.descriptor();
 
-        let mut config = tonic_build::configure();
+        let config = tonic_build::configure();
 
         #[cfg(feature = "serde")]
-        {
-            config = config.type_attribute(
-                ".",
-                "#[derive(serde::Serialize, serde::Deserialize)] #[serde(rename_all = \"snake_case\")]",
-            );
-        }
+        let config = config.type_attribute(
+            ".",
+            "#[derive(serde::Serialize, serde::Deserialize)] #[serde(rename_all = \"snake_case\")]",
+        );
 
         #[cfg(feature = "openapi")]
-        {
-            config = config.type_attribute(".", "#[derive(utoipa::ToSchema)]");
-        }
+        let config = config.type_attribute(".", "#[derive(utoipa::ToSchema)]");
 
         config
-        .file_descriptor_set_path(out_dir.join(format!("{package}_descriptor.bin")))
+        .file_descriptor_set_path(out_dir.join(format!("{descriptor}_descriptor.bin")))
             .server_mod_attribute(
                 &package,
                 format!("#[cfg(feature = \"rpc-server-{package}\")] #[cfg_attr(docsrs, doc(cfg(feature = \"rpc-server-{package}\")))]"),

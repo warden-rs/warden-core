@@ -5,6 +5,7 @@
     rustdoc::broken_intra_doc_links,
     missing_debug_implementations
 )]
+
 /// Protobuf types
 #[cfg(any(
     feature = "configuration",
@@ -23,6 +24,7 @@ pub mod iso20022;
 #[cfg(feature = "pseudonyms")]
 pub mod pseudonyms;
 
+#[allow(missing_docs)]
 #[cfg(feature = "configuration")]
 /// configuration
 pub mod configuration;
