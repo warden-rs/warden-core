@@ -93,7 +93,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         #[cfg(feature = "serde-time")]
         let config = config.type_attribute(
             ".google.protobuf.Timestamp",
-            "#[serde(from = \"time::OffsetDateTime\")]",
+            "#[serde(try_from = \"String\")]",
         );
 
         #[cfg(feature = "openapi")]

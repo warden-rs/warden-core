@@ -1,5 +1,6 @@
 /// Well known types
 pub mod protobuf {
+
     include!(concat!(env!("OUT_DIR"), "/google.protobuf.rs"));
 
     #[cfg(feature = "time")]
@@ -9,6 +10,18 @@ pub mod protobuf {
                 seconds: dt.unix_timestamp(),
                 nanos: dt.nanosecond() as i32,
             }
+        }
+    }
+
+    #[cfg(feature = "serde-time")]
+    impl TryFrom<String> for Timestamp {
+        type Error = time::Error;
+
+        fn try_from(dt: String) -> Result<Self, Self::Error> {
+            let t =
+                time::OffsetDateTime::parse(&dt, &time::format_description::well_known::Rfc3339)?;
+
+            Ok(Timestamp::from(t))
         }
     }
 
