@@ -13,7 +13,7 @@ enum Entity {
 impl Entity {
     fn package(&self) -> String {
         match self {
-            Entity::Pacs002 | Entity::Pacs008| Entity::Payload => "iso20022",
+            Entity::Pacs002 | Entity::Pacs008 | Entity::Payload => "iso20022",
             Entity::TypologyConfiguration | Entity::RoutingConfiguration => "configuration",
             Entity::TransactionRelationship
             | Entity::Entity
@@ -40,14 +40,14 @@ impl Entity {
     fn descriptor(&self) -> String {
         match self {
             Entity::Pacs008 => "pacs008",
-            Entity::Pacs002 =>"pacs002",
+            Entity::Pacs002 => "pacs002",
             Entity::TypologyConfiguration => "typology_configuration",
             Entity::TransactionRelationship => "transaction_relationship",
             Entity::Account => "account",
             Entity::Entity => "entity",
             Entity::Payload => "payload",
             Entity::AccountHolder => "account_holder",
-            Entity::RoutingConfiguration => "routing_configuration"
+            Entity::RoutingConfiguration => "routing_configuration",
         }
         .into()
     }
@@ -88,6 +88,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let config = config.type_attribute(
             ".",
             "#[derive(serde::Serialize, serde::Deserialize)] #[serde(rename_all = \"snake_case\")]",
+        );
+
+        #[cfg(feature = "serde-time")]
+        let config = config.type_attribute(
+            ".google.protobuf.Timestamp",
+            "#[serde(from = \"time::OffsetDateTime\")]",
         );
 
         #[cfg(feature = "openapi")]
