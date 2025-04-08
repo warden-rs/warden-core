@@ -14,3 +14,7 @@ pub mod pacs002 {
     pub const PACS002_CONFIGURATION_FILE_DESCRIPTOR_SET: &[u8] =
         tonic::include_file_descriptor_set!("pacs002_descriptor");
 }
+
+pub mod payload {
+    tonic::include_proto!("iso20022.payload");
+}

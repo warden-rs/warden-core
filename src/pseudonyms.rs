@@ -8,7 +8,7 @@ pub mod account {
 pub mod entity {
     tonic::include_proto!("pseudonyms.entity");
     /// Entity file descriptor
-    pub const Entity_FILE_DESCRIPTOR_SET: &[u8] =
+    pub const ENTITY_FILE_DESCRIPTOR_SET: &[u8] =
         tonic::include_file_descriptor_set!("entity_descriptor");
 }
 

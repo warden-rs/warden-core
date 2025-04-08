@@ -1,6 +1,7 @@
 enum Entity {
     Pacs008,
     Pacs002,
+    Payload,
     TypologyConfiguration,
     TransactionRelationship,
     Account,
@@ -12,7 +13,7 @@ enum Entity {
 impl Entity {
     fn package(&self) -> String {
         match self {
-            Entity::Pacs002 | Entity::Pacs008 => "iso20022",
+            Entity::Pacs002 | Entity::Pacs008| Entity::Payload => "iso20022",
             Entity::TypologyConfiguration | Entity::RoutingConfiguration => "configuration",
             Entity::TransactionRelationship
             | Entity::Entity
@@ -31,6 +32,7 @@ impl Entity {
             Entity::Account => "proto/pseudonyms/account.proto",
             Entity::Entity => "proto/pseudonyms/entity.proto",
             Entity::AccountHolder => "proto/pseudonyms/account_holder.proto",
+            Entity::Payload => "proto/iso20022/payload.proto",
         }
         .into()
     }
@@ -43,6 +45,7 @@ impl Entity {
             Entity::TransactionRelationship => "transaction_relationship",
             Entity::Account => "account",
             Entity::Entity => "entity",
+            Entity::Payload => "payload",
             Entity::AccountHolder => "account_holder",
             Entity::RoutingConfiguration => "routing_configuration"
         }
@@ -57,6 +60,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if cfg!(feature = "iso20022") {
         protos.push(Entity::Pacs008);
         protos.push(Entity::Pacs002);
+        protos.push(Entity::Payload);
     }
 
     if cfg!(feature = "configuration") {

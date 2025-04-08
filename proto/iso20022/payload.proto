@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package iso20022.payload;
+
+import "proto/iso20022/pacs.008.001.12.proto";
+import "proto/iso20022/pacs.002.001.12.proto";
+
+message Payload {
+  oneof transaction {
+    iso20022.pacs008.Pacs008Document pacs008 = 1;
+    iso20022.pacs002.Pacs002Document pacs002 = 2;
+  }
+}
