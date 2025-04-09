@@ -101,4 +101,46 @@ pub mod protobuf {
 #[cfg(feature = "iso20022")]
 pub mod r#type {
     tonic::include_proto!("google.r#type");
+
+    #[cfg(feature = "time")]
+    impl From<time::OffsetDateTime> for Date {
+        fn from(dt: time::OffsetDateTime) -> Self {
+            Self {
+                year: dt.year(),
+                month: dt.month() as i32,
+                day: dt.day() as i32,
+            }
+        }
+    }
+
+    #[cfg(feature = "time")]
+    impl From<time::Date> for Date {
+        fn from(value: time::Date) -> Self {
+            Self {
+                year: value.year(),
+                month: value.month() as i32,
+                day: value.day() as i32,
+            }
+        }
+    }
+
+    #[cfg(feature = "serde-time")]
+    impl TryFrom<String> for Date {
+        type Error = time::Error;
+
+        fn try_from(dt: String) -> Result<Self, Self::Error> {
+            let date =
+                time::OffsetDateTime::parse(&dt, &time::format_description::well_known::Rfc3339)
+                    .map(Date::from);
+
+            match date {
+                Ok(dt) => Ok(dt),
+                Err(_e) => {
+                    let my_format = time::macros::format_description!("[day]-[month]-[year]");
+                    let date = time::Date::parse(&dt, &my_format)?;
+                    Ok(Date::from(date))
+                }
+            }
+        }
+    }
 }

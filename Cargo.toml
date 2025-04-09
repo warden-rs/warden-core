@@ -22,7 +22,7 @@ rpc-client-configuration = ["configuration"]
 rpc-server-configuration = ["configuration"]
 serde = ["dep:serde", "serde/derive"]
 time = ["dep:time"]
-serde-time = ["time", "time/serde", "serde", "time/parsing"]
+serde-time = ["time", "time/serde", "serde", "time/parsing", "time/macros"]
 openapi = ["dep:utoipa", "serde"]
 
 [package.metadata.docs.rs]

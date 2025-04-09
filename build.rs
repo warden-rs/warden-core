@@ -91,10 +91,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
 
         #[cfg(feature = "serde-time")]
-        let config = config.type_attribute(
-            ".google.protobuf.Timestamp",
-            "#[serde(try_from = \"String\")]",
-        );
+        let config = config
+            .type_attribute(
+                ".google.protobuf.Timestamp",
+                "#[serde(try_from = \"String\")]",
+            )
+            .type_attribute(".google.type.Date", "#[serde(try_from = \"String\")]");
 
         #[cfg(feature = "openapi")]
         let config = config.type_attribute(".", "#[derive(utoipa::ToSchema)]");
