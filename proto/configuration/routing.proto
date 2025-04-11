@@ -15,15 +15,10 @@ message RoutingConfiguration {
   google.protobuf.Timestamp updated_at = 6;
 }
 
-enum TxTp {
-  PACS008_001_12 = 0;
-  PACS002_001_12 = 1;
-}
-
 message Message {
   string id = 1;
   string version = 2;
-  TxTp tx_tp = 3;
+  string tx_tp = 3;
   repeated Typology typologies = 4;
 }
 
