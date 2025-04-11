@@ -42,8 +42,12 @@ message RoutingConfigurationRequest {
   string id = 1;
 }
 
+message GetActiveRoutingResponse {
+  optional RoutingConfiguration configuration = 1;
+}
+
 service QueryRouting {
-  rpc GetActiveRoutingConfiguration (google.protobuf.Empty) returns (RoutingConfiguration);
+  rpc GetActiveRoutingConfiguration (google.protobuf.Empty) returns (GetActiveRoutingResponse);
 }
 
 service MutateRouting {
