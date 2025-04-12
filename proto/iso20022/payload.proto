@@ -12,6 +12,7 @@ message Payload {
     iso20022.pacs002.Pacs002Document pacs002 = 2;
   }
   DataCache data_cache = 3;
+  string tx_tp = 4;
 }
 
 message DataCache {
