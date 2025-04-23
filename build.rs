@@ -99,7 +99,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .type_attribute(".google.type.Date", "#[serde(try_from = \"String\")]");
 
         #[cfg(feature = "openapi")]
-        let config = config.type_attribute(".", "#[derive(utoipa::ToSchema)]");
+        let config = config
+            .type_attribute(".", "#[derive(utoipa::ToSchema)]")
+            .type_attribute(
+                ".configuration.typology.TypologyConfigurationRequest",
+                "#[derive(utoipa::IntoParams)]",
+            );
 
         config
         .file_descriptor_set_path(out_dir.join(format!("{descriptor}_descriptor.bin")))
