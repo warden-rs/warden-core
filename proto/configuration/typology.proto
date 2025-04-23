@@ -22,6 +22,24 @@ message TypologyConfiguration {
   string id = 1;
   string description = 2;
   string cfg = 3;
-  Workflow workflow = 4;
-  repeated TypologyRule rules = 5;
+  string version = 4;
+  Workflow workflow = 5;
+  repeated TypologyRule rules = 6;
+}
+
+message TypologyConfigurationRequest {
+  string cfg = 1;
+  string version = 2;
+}
+
+message GetTypologyConfigResponse {
+  optional TypologyConfiguration configuration = 1;
+}
+
+service QueryTypologies {
+  rpc GetTypologyConfiguration (TypologyConfigurationRequest) returns (GetTypologyConfigResponse);
+}
+
+service MutateTypologies {
+  rpc CreateTypologyConfiguration (TypologyConfiguration) returns (TypologyConfiguration);
 }
