@@ -32,7 +32,7 @@ impl Entity {
             Entity::Account => "proto/pseudonyms/account.proto",
             Entity::Entity => "proto/pseudonyms/entity.proto",
             Entity::AccountHolder => "proto/pseudonyms/account_holder.proto",
-            Entity::Payload => "proto/iso20022/payload.proto",
+            Entity::Payload => "proto/payload.proto",
         }
         .into()
     }
@@ -60,6 +60,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if cfg!(feature = "iso20022") {
         protos.push(Entity::Pacs008);
         protos.push(Entity::Pacs002);
+    }
+
+    if cfg!(feature = "payload") {
         protos.push(Entity::Payload);
     }
 

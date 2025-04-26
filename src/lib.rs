@@ -19,6 +19,11 @@ pub mod google;
 #[cfg(feature = "iso20022")]
 pub mod iso20022;
 
+/// Payload
+#[allow(missing_docs)]
+#[cfg(feature = "payload")]
+pub mod payload;
+
 /// pseudonyms
 #[allow(missing_docs)]
 #[cfg(feature = "pseudonyms")]
