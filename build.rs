@@ -95,6 +95,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         #[cfg(feature = "serde")]
         let config = config.type_attribute(
+            ".configuration.typology.TypologyConfigurationRequest",
+            "#[derive(Hash, Eq)]",
+        );
+
+        #[cfg(feature = "serde")]
+        let config = config.type_attribute(
             ".",
             "#[derive(serde::Serialize, serde::Deserialize)] #[serde(rename_all = \"snake_case\")]",
         );
