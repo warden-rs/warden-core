@@ -1,7 +1,5 @@
 /// Well known types
 pub mod protobuf {
-    pub use prost_types::Any;
-
     include!(concat!(env!("OUT_DIR"), "/google.protobuf.rs"));
 
     #[cfg(feature = "time")]
