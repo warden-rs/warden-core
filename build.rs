@@ -8,13 +8,16 @@ enum Entity {
     Entity,
     AccountHolder,
     RoutingConfiguration,
+    RuleConfiguration,
 }
 
 impl Entity {
     fn package(&self) -> String {
         match self {
             Entity::Pacs002 | Entity::Pacs008 | Entity::Payload => "iso20022",
-            Entity::TypologyConfiguration | Entity::RoutingConfiguration => "configuration",
+            Entity::TypologyConfiguration
+            | Entity::RoutingConfiguration
+            | Entity::RuleConfiguration => "configuration",
             Entity::TransactionRelationship
             | Entity::Entity
             | Entity::Account
@@ -28,6 +31,7 @@ impl Entity {
             Entity::Pacs002 => "proto/iso20022/pacs.002.001.12.proto",
             Entity::TypologyConfiguration => "proto/configuration/typology.proto",
             Entity::RoutingConfiguration => "proto/configuration/routing.proto",
+            Entity::RuleConfiguration => "proto/configuration/rule.proto",
             Entity::TransactionRelationship => "proto/pseudonyms/transaction_relationship.proto",
             Entity::Account => "proto/pseudonyms/account.proto",
             Entity::Entity => "proto/pseudonyms/entity.proto",
@@ -42,6 +46,7 @@ impl Entity {
             Entity::Pacs008 => "pacs008",
             Entity::Pacs002 => "pacs002",
             Entity::TypologyConfiguration => "typology_configuration",
+            Entity::RuleConfiguration => "rule_configuration",
             Entity::TransactionRelationship => "transaction_relationship",
             Entity::Account => "account",
             Entity::Entity => "entity",
@@ -67,6 +72,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if cfg!(feature = "configuration") {
+        protos.push(Entity::RuleConfiguration);
         protos.push(Entity::TypologyConfiguration);
         protos.push(Entity::RoutingConfiguration);
     }
