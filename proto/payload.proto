@@ -26,15 +26,15 @@ message RuleResult {
    string sub_rule_ref = 3;
    string reason = 4;
    string desc = 5;
-   uint32 wght = 6;
+   double wght = 6;
 }
 
 message TypologyResult {
    string id = 1;
    string version = 2;
    string desc = 3;
-   uint32 result = 4;
-   uint32 threshold = 5;
+   double result = 4;
+   double threshold = 5;
    repeated RuleResult rule_results = 6;
    bool review = 7;
    configuration.typology.Workflow workflow = 8;

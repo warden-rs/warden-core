@@ -16,7 +16,7 @@ message Workflow {
 
 message TypologyRuleWeight {
   string ref = 1;
-  int64 weight = 2;
+  double weight = 2;
   string id = 3;
   string version = 4;
 }
