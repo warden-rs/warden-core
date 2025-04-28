@@ -132,6 +132,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .type_attribute(
                 ".configuration.rule.DeleteRuleConfigurationRequest",
                 "#[derive(utoipa::IntoParams)]",
+            )
+            .type_attribute(
+                ".configuration.rule.RuleConfigurationRequest",
+                "#[derive(utoipa::IntoParams)]",
             );
 
         config
