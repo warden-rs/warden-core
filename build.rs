@@ -9,6 +9,7 @@ enum Entity {
     AccountHolder,
     RoutingConfiguration,
     RuleConfiguration,
+    ReloadEvent,
 }
 
 impl Entity {
@@ -17,7 +18,8 @@ impl Entity {
             Entity::Pacs002 | Entity::Pacs008 | Entity::Payload => "iso20022",
             Entity::TypologyConfiguration
             | Entity::RoutingConfiguration
-            | Entity::RuleConfiguration => "configuration",
+            | Entity::RuleConfiguration
+            | Entity::ReloadEvent => "configuration",
             Entity::TransactionRelationship
             | Entity::Entity
             | Entity::Account
@@ -37,6 +39,7 @@ impl Entity {
             Entity::Entity => "proto/pseudonyms/entity.proto",
             Entity::AccountHolder => "proto/pseudonyms/account_holder.proto",
             Entity::Payload => "proto/payload.proto",
+            Entity::ReloadEvent => "proto/configuration/reload_event.proto",
         }
         .into()
     }
@@ -53,6 +56,7 @@ impl Entity {
             Entity::Payload => "payload",
             Entity::AccountHolder => "account_holder",
             Entity::RoutingConfiguration => "routing_configuration",
+            Entity::ReloadEvent => "configuration"
         }
         .into()
     }
@@ -75,6 +79,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         protos.push(Entity::RuleConfiguration);
         protos.push(Entity::TypologyConfiguration);
         protos.push(Entity::RoutingConfiguration);
+        protos.push(Entity::ReloadEvent);
     }
 
     if cfg!(feature = "pseudonyms") {

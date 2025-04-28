@@ -1,3 +1,8 @@
+tonic::include_proto!("configuration");
+/// Configuration file descriptor
+pub const CONFIGURATION_FILE_DESCRIPTOR_SET: &[u8] =
+    tonic::include_file_descriptor_set!("configuration_descriptor");
+
 pub mod typology {
     tonic::include_proto!("configuration.typology");
 
