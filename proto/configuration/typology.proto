@@ -2,6 +2,13 @@ syntax = "proto3";
 
 package configuration.typology;
 
+enum Operator {
+    Add = 0;
+    Subtract = 1;
+    Multiply = 2;
+    Divide = 3;
+}
+
 message Workflow {
   double alert_threshold = 1;
   optional double interdiction_threshold = 2;
@@ -21,7 +28,7 @@ message TypologyRule {
 }
 
 message TypologyExpression {
-  string operator = 1;
+  Operator operator = 1;
   repeated TypologyRule terms = 2;
   optional TypologyExpression expression = 3;
 }
