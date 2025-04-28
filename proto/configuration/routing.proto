@@ -37,6 +37,11 @@ message RoutingConfigurationRequest {
   string id = 1;
 }
 
+message UpdateRoutingRequest {
+  string id = 1;
+  RoutingConfiguration configuration = 2;
+}
+
 message GetActiveRoutingResponse {
   optional RoutingConfiguration configuration = 1;
 }
@@ -47,6 +52,6 @@ service QueryRouting {
 
 service MutateRouting {
   rpc CreateRoutingConfiguration (RoutingConfiguration) returns (RoutingConfiguration);
-  rpc UpdateRoutingConfiguration (RoutingConfiguration) returns (RoutingConfiguration);
+  rpc UpdateRoutingConfiguration (UpdateRoutingRequest) returns (RoutingConfiguration);
 }
 
