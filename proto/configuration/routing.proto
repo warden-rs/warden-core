@@ -46,6 +46,10 @@ message GetActiveRoutingResponse {
   optional RoutingConfiguration configuration = 1;
 }
 
+message DeleteConfigurationRequest {
+  string id = 1;
+}
+
 service QueryRouting {
   rpc GetActiveRoutingConfiguration (google.protobuf.Empty) returns (GetActiveRoutingResponse);
 }
@@ -53,5 +57,6 @@ service QueryRouting {
 service MutateRouting {
   rpc CreateRoutingConfiguration (RoutingConfiguration) returns (RoutingConfiguration);
   rpc UpdateRoutingConfiguration (UpdateRoutingRequest) returns (RoutingConfiguration);
+  rpc DeleteRoutingConfiguration (DeleteConfigurationRequest) returns (RoutingConfiguration);
 }
 

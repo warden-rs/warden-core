@@ -56,7 +56,7 @@ impl Entity {
             Entity::Payload => "payload",
             Entity::AccountHolder => "account_holder",
             Entity::RoutingConfiguration => "routing_configuration",
-            Entity::ReloadEvent => "configuration"
+            Entity::ReloadEvent => "configuration",
         }
         .into()
     }
@@ -123,6 +123,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .type_attribute(".", "#[derive(utoipa::ToSchema)]")
             .type_attribute(
                 ".configuration.typology.TypologyConfigurationRequest",
+                "#[derive(utoipa::IntoParams)]",
+            )
+            .type_attribute(
+                ".configuration.typology.DeleteTypologyConfigurationRequest",
+                "#[derive(utoipa::IntoParams)]",
+            )
+            .type_attribute(
+                ".configuration.rule.DeleteRuleConfigurationRequest",
                 "#[derive(utoipa::IntoParams)]",
             );
 

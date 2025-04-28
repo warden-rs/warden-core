@@ -47,8 +47,17 @@ message TypologyConfigurationRequest {
   string version = 2;
 }
 
+message DeleteTypologyConfigurationRequest {
+  string id = 1;
+  string version = 2;
+}
+
 message GetTypologyConfigResponse {
   optional TypologyConfiguration configuration = 1;
+}
+
+message UpdateTypologyConfigRequest {
+  TypologyConfiguration configuration = 1;
 }
 
 service QueryTypologies {
@@ -57,4 +66,6 @@ service QueryTypologies {
 
 service MutateTypologies {
   rpc CreateTypologyConfiguration (TypologyConfiguration) returns (TypologyConfiguration);
+  rpc UpdateTypologyConfiguration (UpdateTypologyConfigRequest) returns (TypologyConfiguration);
+  rpc DeleteTypologyConfiguration (DeleteTypologyConfigurationRequest) returns (TypologyConfiguration);
 }

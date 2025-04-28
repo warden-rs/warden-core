@@ -44,6 +44,15 @@ message RuleConfigurationRequest {
   string version = 2;
 }
 
+message DeleteRuleConfigurationRequest {
+  string id = 1;
+  string version = 2;
+}
+
+message UpdateRuleRequest {
+  RuleConfiguration configuration = 1;
+}
+
 message GetRuleConfigResponse {
   optional RuleConfiguration configuration = 1;
 }
@@ -54,4 +63,6 @@ service QueryRuleConfiguration {
 
 service MutateRuleConfiguration {
   rpc CreateRuleConfiguration (RuleConfiguration) returns (RuleConfiguration);
+  rpc UpdateRuleConfiguration (UpdateRuleRequest) returns (RuleConfiguration);
+  rpc DeleteRuleConfiguration (DeleteRuleConfigurationRequest) returns (RuleConfiguration);
 }
