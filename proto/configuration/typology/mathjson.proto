@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package configuration.typology.mathjson;
+
+message MathJson {
+  oneof kind {
+    double number = 1;
+    string string_value = 2;
+    Symbol symbol = 3;
+    Array array = 4;
+    Object object = 5;
+  }
+}
+
+message Symbol {
+  string name = 1;
+}
+
+message Array {
+  repeated MathJson items = 1;
+}
+
+message Object {
+  map<string, MathJson> fields = 1;
+}
+
