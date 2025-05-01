@@ -18,7 +18,7 @@ message TypologyRule {
   string id = 1;
   string version = 2;
   string term_id = 3;
-  repeated TypologyRuleWeight weight = 4;
+  repeated TypologyRuleWeight weights = 4;
 }
 
 message TypologyConfiguration {
