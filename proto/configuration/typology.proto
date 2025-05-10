@@ -11,14 +11,14 @@ message Workflow {
 
 message TypologyRuleWeight {
   string ref = 1;
-  double weight = 2;
+  double wght = 2;
 }
 
 message TypologyRule {
   string id = 1;
   string version = 2;
   string term_id = 3;
-  repeated TypologyRuleWeight weights = 4;
+  repeated TypologyRuleWeight wghts = 4;
 }
 
 message TypologyConfiguration {
