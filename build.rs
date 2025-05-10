@@ -149,6 +149,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "#[schema(no_recursion)]",
         );
 
+        #[cfg(all(feature = "serde", feature = "configuration"))]
+        let config = config
+            .field_attribute(".configuration.rule.Config.cases", "#[serde(default)]")
+            .field_attribute(".configuration.rule.Config.time_frames", "#[serde(default)]");
+
         config
         .file_descriptor_set_path(out_dir.join(format!("{descriptor}_descriptor.bin")))
             .server_mod_attribute(

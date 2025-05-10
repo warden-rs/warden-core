@@ -143,3 +143,9 @@ pub mod r#type {
         }
     }
 }
+
+/// Custom types
+#[cfg(feature = "configuration")]
+pub mod custom {
+    tonic::include_proto!("google.custom");
+}
