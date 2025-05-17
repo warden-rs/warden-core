@@ -10,7 +10,6 @@ enum Entity {
     RoutingConfiguration,
     RuleConfiguration,
     ReloadEvent,
-    MathJSON,
 }
 
 impl Entity {
@@ -20,8 +19,7 @@ impl Entity {
             Entity::TypologyConfiguration
             | Entity::RoutingConfiguration
             | Entity::RuleConfiguration
-            | Entity::ReloadEvent
-            | Entity::MathJSON => "configuration",
+            | Entity::ReloadEvent => "configuration",
             Entity::TransactionRelationship
             | Entity::Entity
             | Entity::Account
@@ -34,7 +32,6 @@ impl Entity {
             Entity::Pacs008 => "proto/iso20022/pacs.008.001.12.proto",
             Entity::Pacs002 => "proto/iso20022/pacs.002.001.12.proto",
             Entity::TypologyConfiguration => "proto/configuration/typology.proto",
-            Entity::MathJSON => "proto/configuration/typology/mathjson.proto",
             Entity::RoutingConfiguration => "proto/configuration/routing.proto",
             Entity::RuleConfiguration => "proto/configuration/rule.proto",
             Entity::TransactionRelationship => "proto/pseudonyms/transaction_relationship.proto",
@@ -54,7 +51,6 @@ impl Entity {
             Entity::TypologyConfiguration => "typology_configuration",
             Entity::RuleConfiguration => "rule_configuration",
             Entity::TransactionRelationship => "transaction_relationship",
-            Entity::MathJSON => "mathjson",
             Entity::Account => "account",
             Entity::Entity => "entity",
             Entity::Payload => "payload",
@@ -84,7 +80,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         protos.push(Entity::TypologyConfiguration);
         protos.push(Entity::RoutingConfiguration);
         protos.push(Entity::ReloadEvent);
-        protos.push(Entity::MathJSON);
     }
 
     if cfg!(feature = "pseudonyms") {
@@ -152,7 +147,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         #[cfg(all(feature = "serde", feature = "configuration"))]
         let config = config
             .field_attribute(".configuration.rule.Config.cases", "#[serde(default)]")
-            .field_attribute(".configuration.rule.Config.time_frames", "#[serde(default)]");
+            .field_attribute(
+                ".configuration.rule.Config.time_frames",
+                "#[serde(default)]",
+            )
+            .field_attribute(
+                ".configuration.typology.Expression.operator",
+                "#[serde(with = \"operator_serde\")]",
+            );
 
         config
         .file_descriptor_set_path(out_dir.join(format!("{descriptor}_descriptor.bin")))

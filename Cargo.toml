@@ -7,6 +7,7 @@ license = "AGPL-3.0-only"
 [dependencies]
 prost = "0.13.5"
 serde = { version = "1.0.219", optional = true }
+serde_json = { version = "1.0.140", optional = true }
 time = { version = "0.3.41", optional = true }
 tonic = "0.13.0"
 tonic-types = "0.13.0"
@@ -22,7 +23,7 @@ rpc-client-pseudonyms = ["pseudonyms"]
 rpc-server-pseudonyms = ["pseudonyms"]
 rpc-client-configuration = ["configuration"]
 rpc-server-configuration = ["configuration"]
-serde = ["dep:serde", "serde/derive"]
+serde = ["dep:serde", "serde/derive", "serde_json"]
 time = ["dep:time"]
 serde-time = ["time", "time/serde", "serde", "time/parsing", "time/macros"]
 openapi = ["dep:utoipa", "serde"]

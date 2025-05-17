@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package configuration.typology;
 
-import "proto/configuration/typology/mathjson.proto";
+import "proto/google/struct.proto";
 
 message Workflow {
   double alert_threshold = 1;
@@ -17,8 +17,7 @@ message TypologyRuleWeight {
 message TypologyRule {
   string id = 1;
   string version = 2;
-  string term_id = 3;
-  repeated TypologyRuleWeight wghts = 4;
+  repeated TypologyRuleWeight wghts = 3;
 }
 
 message TypologyConfiguration {
@@ -27,7 +26,24 @@ message TypologyConfiguration {
   string version = 3;
   Workflow workflow = 4;
   repeated TypologyRule rules = 5;
-  repeated configuration.typology.mathjson.MathJson expression = 6;
+  Expression expression = 6;
+}
+
+enum Operator {
+  ADD = 0;
+  MULTIPLY = 1;
+  SUBTRACT = 2;
+  DIVIDE = 3;
+}
+
+message Term {
+  string id = 1;
+  string version = 2;
+}
+
+message Expression {
+  Operator operator = 1;
+  repeated Term terms = 2;
 }
 
 message TypologyConfigurationRequest {
