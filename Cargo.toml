@@ -12,6 +12,7 @@ time = { version = "0.3.41", optional = true }
 tonic = "0.13.0"
 tonic-types = "0.13.0"
 utoipa = { version = "5.3.1", optional = true }
+void = "1.0.2"
 
 [features]
 default = []
@@ -25,7 +26,13 @@ rpc-client-configuration = ["configuration"]
 rpc-server-configuration = ["configuration"]
 serde = ["dep:serde", "serde/derive", "serde_json"]
 time = ["dep:time"]
-serde-time = ["time", "time/serde", "serde", "time/parsing", "time/macros"]
+serde-time = [
+    "time/serde",
+    "serde",
+    "time/parsing",
+    "time/macros",
+    "time/formatting",
+]
 openapi = ["dep:utoipa", "serde"]
 
 [package.metadata.docs.rs]

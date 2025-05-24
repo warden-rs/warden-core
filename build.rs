@@ -64,11 +64,18 @@ impl Entity {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rerun-if-changed=proto");
+    let mut paths = vec![];
+    let mut opt_paths = vec![];
 
     let mut protos = vec![];
     if cfg!(feature = "iso20022") {
         protos.push(Entity::Pacs008);
         protos.push(Entity::Pacs002);
+        paths.push(".iso20022.pacs008.GroupHeader113.cre_dt_tm");
+        paths.push(".iso20022.pacs002.GroupHeader101.cre_dt_tm");
+        opt_paths.push(".iso20022.pacs002.OriginalBusinessQuery1.cre_dt_tm");
+        opt_paths.push(".iso20022.pacs002.OriginalGroupHeader17.orgnl_cre_dt_tm");
+        opt_paths.push(".iso20022.pacs002.OriginalGroupInformation29.orgnl_cre_dt_tm");
     }
 
     if cfg!(feature = "payload") {
@@ -96,27 +103,40 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let package = proto.package();
         let descriptor = proto.descriptor();
 
-        let config = tonic_build::configure();
+        #[allow(unused_mut)]
+        let mut config = tonic_build::configure();
 
+        #[allow(unused_mut)]
         #[cfg(feature = "serde")]
-        let config = config.type_attribute(
+        let mut config = config.type_attribute(
             ".configuration.typology.TypologyConfigurationRequest",
             "#[derive(Hash, Eq)]",
         );
 
+        #[allow(unused_mut)]
         #[cfg(feature = "serde")]
-        let config = config.type_attribute(
+        let mut config = config.type_attribute(
             ".",
             "#[derive(serde::Serialize, serde::Deserialize)] #[serde(rename_all = \"snake_case\")]",
         );
 
         #[cfg(feature = "serde-time")]
-        let config = config
-            .type_attribute(
-                ".google.protobuf.Timestamp",
-                "#[serde(try_from = \"String\")]",
-            )
-            .type_attribute(".google.type.Date", "#[serde(try_from = \"String\")]");
+        let mut config =
+            config.type_attribute(".google.type.Date", "#[serde(try_from = \"String\")]");
+
+        for i in paths.iter() {
+            config = config.field_attribute(
+                i,
+                "#[serde(serialize_with = \"crate::google::protobuf::serialise_dt::serialize\")] #[serde(deserialize_with = \"crate::google::protobuf::serialise_dt::deserialize\")]",
+            );
+        }
+
+        for i in opt_paths.iter() {
+            config = config.field_attribute(
+                i,
+                "#[serde(serialize_with = \"crate::google::protobuf::serialise_dt::option::serialize\")]  #[serde(deserialize_with = \"crate::google::protobuf::serialise_dt::option::deserialize\")]",
+            );
+        }
 
         #[cfg(feature = "openapi")]
         let config = config

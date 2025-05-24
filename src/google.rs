@@ -1,5 +1,6 @@
 /// Well known types
 pub mod protobuf {
+
     include!(concat!(env!("OUT_DIR"), "/google.protobuf.rs"));
 
     #[cfg(feature = "time")]
@@ -12,29 +13,148 @@ pub mod protobuf {
         }
     }
 
-    #[cfg(feature = "serde-time")]
-    impl TryFrom<String> for Timestamp {
-        type Error = time::Error;
+    #[cfg(feature = "time")]
+    impl std::str::FromStr for Timestamp {
+        type Err = void::Void;
 
-        fn try_from(dt: String) -> Result<Self, Self::Error> {
-            let t =
-                time::OffsetDateTime::parse(&dt, &time::format_description::well_known::Rfc3339)?;
-
-            Ok(Timestamp::from(t))
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            let time =
+                time::OffsetDateTime::parse(s, &time::format_description::well_known::Rfc3339)
+                    .unwrap();
+            Ok(Timestamp::try_from(time).unwrap())
         }
     }
 
     #[cfg(feature = "time")]
     impl TryFrom<Timestamp> for time::OffsetDateTime {
-        type Error = time::Error;
+        type Error = time::error::ComponentRange;
 
-        fn try_from(timestamp: Timestamp) -> Result<Self, Self::Error> {
-            let seconds = timestamp.seconds;
-            let nanos = timestamp.nanos as i64;
-            let nanoseconds = nanos % 1_000_000_000;
-            let d = time::OffsetDateTime::from_unix_timestamp(seconds)?
-                + time::Duration::nanoseconds(nanoseconds);
-            Ok(d)
+        fn try_from(value: Timestamp) -> Result<Self, Self::Error> {
+            let dt = time::OffsetDateTime::from_unix_timestamp(value.seconds)?;
+
+            dt.replace_nanosecond(value.nanos as u32)
+        }
+    }
+
+    #[cfg(feature = "serde-time")]
+    pub(crate) mod serialise_dt {
+        use std::{fmt, marker::PhantomData, str::FromStr};
+
+        use serde::{
+            Deserialize, Deserializer, Serializer,
+            de::{self, MapAccess, Visitor},
+        };
+        use time::OffsetDateTime;
+
+        use super::Timestamp;
+
+        pub fn serialize<S: Serializer>(
+            datetime: &Timestamp,
+            serializer: S,
+        ) -> Result<S::Ok, S::Error> {
+            let value = OffsetDateTime::try_from(*datetime).unwrap();
+            time::serde::rfc3339::serialize(&value, serializer)
+        }
+
+        pub fn deserialize<'de, D>(deserializer: D) -> Result<Timestamp, D::Error>
+        where
+            D: Deserializer<'de>,
+        {
+            // This is a Visitor that forwards string types to T's `FromStr` impl and
+            // forwards map types to T's `Deserialize` impl. The `PhantomData` is to
+            // keep the compiler from complaining about T being an unused generic type
+            // parameter. We need T in order to know the Value type for the Visitor
+            // impl.
+            struct StringOrStruct(PhantomData<fn() -> Timestamp>);
+
+            impl<'de> Visitor<'de> for StringOrStruct {
+                type Value = Timestamp;
+
+                fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                    formatter.write_str("string or map")
+                }
+
+                fn visit_str<E>(self, value: &str) -> Result<Timestamp, E>
+                where
+                    E: de::Error,
+                {
+                    Ok(FromStr::from_str(value).unwrap())
+                }
+
+                fn visit_map<M>(self, map: M) -> Result<Timestamp, M::Error>
+                where
+                    M: MapAccess<'de>,
+                {
+                    let ds = de::value::MapAccessDeserializer::new(map);
+                    let value = Timestamp::deserialize(ds)?;
+                    Ok(Timestamp {
+                        seconds: value.seconds,
+                        nanos: value.nanos,
+                    })
+                    // `MapAccessDeserializer` is a wrapper that turns a `MapAccess`
+                    // into a `Deserializer`, allowing it to be used as the input to T's
+                    // `Deserialize` implementation. T then deserializes itself using
+                }
+            }
+
+            deserializer.deserialize_any(StringOrStruct(PhantomData))
+        }
+
+        pub mod option {
+
+            use super::*;
+
+            pub fn serialize<S: Serializer>(
+                option: &Option<Timestamp>,
+                serializer: S,
+            ) -> Result<S::Ok, S::Error> {
+                match option {
+                    Some(ts) => {
+                        let dt = OffsetDateTime::try_from(ts.clone())
+                            .map_err(serde::ser::Error::custom)?;
+                        serializer.serialize_some(&dt)
+                    }
+                    None => serializer.serialize_none(),
+                }
+            }
+
+            pub fn deserialize<'de, D: Deserializer<'de>>(
+                deserializer: D,
+            ) -> Result<Option<Timestamp>, D::Error> {
+                println!("DEBUG: option::deserialize hit");
+                struct StringOrStructOpt;
+
+                impl<'de> Visitor<'de> for StringOrStructOpt {
+                    type Value = Option<Timestamp>;
+
+                    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                        formatter.write_str("an optional RFC3339 string or a Timestamp map")
+                    }
+
+                    fn visit_none<E>(self) -> Result<Self::Value, E>
+                    where
+                        E: de::Error,
+                    {
+                        Ok(None)
+                    }
+
+                    fn visit_unit<E>(self) -> Result<Self::Value, E>
+                    where
+                        E: de::Error,
+                    {
+                        Ok(None)
+                    }
+
+                    fn visit_some<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
+                    where
+                        D: Deserializer<'de>,
+                    {
+                        super::deserialize(deserializer).map(Some)
+                    }
+                }
+
+                deserializer.deserialize_option(StringOrStructOpt)
+            }
         }
     }
 
@@ -123,23 +243,15 @@ pub mod r#type {
         }
     }
 
-    #[cfg(feature = "serde-time")]
-    impl TryFrom<String> for Date {
-        type Error = time::Error;
-
-        fn try_from(dt: String) -> Result<Self, Self::Error> {
-            let date =
-                time::OffsetDateTime::parse(&dt, &time::format_description::well_known::Rfc3339)
-                    .map(Date::from);
-
-            match date {
-                Ok(dt) => Ok(dt),
-                Err(_e) => {
-                    let my_format = time::macros::format_description!("[day]-[month]-[year]");
-                    let date = time::Date::parse(&dt, &my_format)?;
-                    Ok(Date::from(date))
-                }
-            }
+    #[cfg(feature = "time")]
+    impl From<Date> for time::Date {
+        fn from(value: Date) -> Self {
+            Self::from_calendar_date(
+                value.year,
+                time::Month::try_from(value.month as u8).expect("invalid month"),
+                value.day as u8,
+            )
+            .expect("invalid date")
         }
     }
 }
