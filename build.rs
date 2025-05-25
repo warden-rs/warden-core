@@ -99,22 +99,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let config = tonic_build::configure();
 
         #[cfg(feature = "configuration")]
-        let config = config.type_attribute(
-            ".configuration.typology.TypologyConfigurationRequest",
-            "#[derive(Hash, Eq)]",
-        );
+        let config = config
+            .type_attribute(
+                ".configuration.typology.TypologyConfigurationRequest",
+                "#[derive(Hash, Eq)]",
+            )
+            .type_attribute(
+                ".configuration.rule.RuleConfigurationRequest",
+                "#[derive(Hash, Eq)]",
+            );
 
         #[cfg(feature = "serde")]
         let config = config.type_attribute(
             ".",
             "#[derive(serde::Serialize, serde::Deserialize)] #[serde(rename_all = \"snake_case\")]",
         )
-        .type_attribute(".google.protobuf.Timestamp", "#[serde(try_from = \"DateItem\")] #[serde(into = \"String\")]")
-        .type_attribute(".google.type.Date", "#[serde(try_from = \"DateItem\")] #[serde(into = \"String\")]");
-
-        // #[cfg(feature = "serde-time")]
-        // let mut config =
-        //     config.type_attribute(".google.type.Date", "#[serde(try_from = \"String\")]");
+        .type_attribute(".google.protobuf.Timestamp", "#[serde(try_from = \"crate::google::protobuf::DateItem\")] #[serde(into = \"String\")]")
+        .type_attribute(".google.type.Date", "#[serde(try_from = \"crate::google::protobuf::DateItem\")] #[serde(into = \"String\")]");
 
         #[cfg(feature = "openapi")]
         let config = config
