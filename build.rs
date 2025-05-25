@@ -136,7 +136,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ".configuration.rule.RuleConfigurationRequest",
                 "#[derive(utoipa::IntoParams)]",
             )
-            .field_attribute("cre_dt_tm", "#[schema(value_type = String, format = DateTime)]");
+            .field_attribute(
+                "cre_dt_tm",
+                "#[schema(value_type = String, format = DateTime)]",
+            );
 
         #[cfg(all(feature = "openapi", feature = "configuration"))]
         let config = config.field_attribute(
@@ -154,6 +157,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .field_attribute(
                 ".configuration.typology.Expression.operator",
                 "#[serde(with = \"operator_serde\")]",
+            )
+            .type_attribute(
+                ".google.custom.Value",
+                "#[serde(try_from = \"serde_json::Value\")] #[serde(into = \"crate::google::custom::utils::GenericParameter\")]",
             );
 
         config
