@@ -3,6 +3,40 @@ pub mod protobuf {
 
     include!(concat!(env!("OUT_DIR"), "/google.protobuf.rs"));
 
+    #[cfg_attr(
+        all(feature = "serde", feature = "time"),
+        derive(serde::Serialize, serde::Deserialize, Clone, Debug)
+    )]
+    #[cfg_attr(all(feature = "serde", feature = "time"), serde(untagged))]
+    /// Date utility
+    #[allow(missing_docs)]
+    pub enum DateItem {
+        /// string
+        String(String),
+        /// ts
+        Timestamp { seconds: i64, nanos: i32 },
+        /// date
+        Date { year: i32, month: i32, day: i32 },
+    }
+
+    #[cfg(all(feature = "serde", feature = "time"))]
+    impl TryFrom<DateItem> for Timestamp {
+        type Error = time::Error;
+
+        fn try_from(value: DateItem) -> Result<Self, Self::Error> {
+            match value {
+                DateItem::String(ref string) => <Timestamp as std::str::FromStr>::from_str(string),
+                DateItem::Date { year, month, day } => {
+                    let date = time::Date::try_from(super::r#type::Date { year, month, day })?;
+                    let time = time::Time::MIDNIGHT;
+                    let offset = time::UtcOffset::UTC;
+                    Ok(date.with_time(time).assume_offset(offset).into())
+                }
+                DateItem::Timestamp { seconds, nanos } => Ok(Self { seconds, nanos }),
+            }
+        }
+    }
+
     #[cfg(feature = "time")]
     impl From<time::OffsetDateTime> for Timestamp {
         fn from(dt: time::OffsetDateTime) -> Self {
@@ -10,6 +44,36 @@ pub mod protobuf {
                 seconds: dt.unix_timestamp(),
                 nanos: dt.nanosecond() as i32,
             }
+        }
+    }
+
+    #[cfg(all(feature = "serde", feature = "time"))]
+    impl From<Timestamp> for String {
+        fn from(value: Timestamp) -> Self {
+            let odt = time::OffsetDateTime::try_from(value).expect("invalid date");
+            odt.format(&time::format_description::well_known::Rfc3339)
+                .expect("format is not rfc3339")
+        }
+    }
+
+    #[cfg(feature = "time")]
+    impl std::str::FromStr for Timestamp {
+        type Err = time::Error;
+
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            let timestamp =
+                time::OffsetDateTime::parse(s, &time::format_description::well_known::Rfc3339)?;
+
+            Ok(Timestamp::from(timestamp))
+        }
+    }
+
+    #[cfg(feature = "time")]
+    impl TryFrom<String> for Timestamp {
+        type Error = time::Error;
+
+        fn try_from(value: String) -> Result<Self, Self::Error> {
+            <Timestamp as std::str::FromStr>::from_str(&value)
         }
     }
 
@@ -21,133 +85,6 @@ pub mod protobuf {
             let dt = time::OffsetDateTime::from_unix_timestamp(value.seconds)?;
 
             Ok(dt.replace_nanosecond(value.nanos as u32)?)
-        }
-    }
-
-    #[cfg(all(feature = "time", feature = "iso20022"))]
-    pub(crate) mod serialise_dt {
-
-        use std::{fmt, marker::PhantomData};
-
-        use serde::{
-            Deserialize, Deserializer, Serializer,
-            de::{self, MapAccess, Visitor},
-        };
-        use time::{OffsetDateTime, format_description::well_known::Rfc3339};
-
-        use super::Timestamp;
-
-        pub fn serialize<S: Serializer>(
-            datetime: &Timestamp,
-            serializer: S,
-        ) -> Result<S::Ok, S::Error> {
-            let value = OffsetDateTime::try_from(*datetime).map_err(serde::ser::Error::custom)?;
-            time::serde::rfc3339::serialize(&value, serializer)
-        }
-
-        pub fn deserialize<'de, D>(deserializer: D) -> Result<Timestamp, D::Error>
-        where
-            D: Deserializer<'de>,
-        {
-            // This is a Visitor that forwards string types to T's `FromStr` impl and
-            // forwards map types to T's `Deserialize` impl. The `PhantomData` is to
-            // keep the compiler from complaining about T being an unused generic type
-            // parameter. We need T in order to know the Value type for the Visitor
-            // impl.
-            struct StringOrStruct(PhantomData<fn() -> Timestamp>);
-
-            impl<'de> Visitor<'de> for StringOrStruct {
-                type Value = Timestamp;
-
-                fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                    formatter.write_str("string or map")
-                }
-
-                fn visit_str<E>(self, value: &str) -> Result<Timestamp, E>
-                where
-                    E: de::Error,
-                {
-                    let timestamp =
-                        time::OffsetDateTime::parse(value, &Rfc3339).map_err(de::Error::custom)?;
-
-                    Timestamp::try_from(timestamp).map_err(de::Error::custom)
-                }
-
-                fn visit_map<M>(self, map: M) -> Result<Timestamp, M::Error>
-                where
-                    M: MapAccess<'de>,
-                {
-                    let ds = de::value::MapAccessDeserializer::new(map);
-                    let value = Timestamp::deserialize(ds)?;
-                    Ok(Timestamp {
-                        seconds: value.seconds,
-                        nanos: value.nanos,
-                    })
-                    // `MapAccessDeserializer` is a wrapper that turns a `MapAccess`
-                    // into a `Deserializer`, allowing it to be used as the input to T's
-                    // `Deserialize` implementation. T then deserializes itself using
-                }
-            }
-
-            deserializer.deserialize_any(StringOrStruct(PhantomData))
-        }
-
-        pub mod option {
-
-            use super::*;
-
-            pub fn serialize<S: Serializer>(
-                option: &Option<Timestamp>,
-                serializer: S,
-            ) -> Result<S::Ok, S::Error> {
-                if let Some(ts) = option {
-                    let dt = OffsetDateTime::try_from(Timestamp {
-                        seconds: ts.seconds,
-                        nanos: ts.nanos,
-                    })
-                    .map_err(serde::ser::Error::custom)?;
-                    serializer.serialize_some(&dt)
-                } else {
-                    serializer.serialize_none()
-                }
-            }
-
-            pub fn deserialize<'de, D: Deserializer<'de>>(
-                deserializer: D,
-            ) -> Result<Option<Timestamp>, D::Error> {
-                struct StringOrStructOpt;
-
-                impl<'de> Visitor<'de> for StringOrStructOpt {
-                    type Value = Option<Timestamp>;
-
-                    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                        formatter.write_str("an optional RFC3339 string or a Timestamp map")
-                    }
-
-                    fn visit_none<E>(self) -> Result<Self::Value, E>
-                    where
-                        E: de::Error,
-                    {
-                        Ok(None)
-                    }
-
-                    fn visit_unit<E>(self) -> Result<Self::Value, E>
-                    where
-                        E: de::Error,
-                    {
-                        Ok(None)
-                    }
-
-                    fn visit_some<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
-                    where
-                        D: Deserializer<'de>,
-                    {
-                        super::deserialize(deserializer).map(Some)
-                    }
-                }
-
-                deserializer.deserialize_option(StringOrStructOpt)
-            }
         }
     }
 
@@ -212,6 +149,8 @@ pub mod protobuf {
 /// Additional types
 #[cfg(feature = "iso20022")]
 pub mod r#type {
+    use super::protobuf::DateItem;
+
     tonic::include_proto!("google.r#type");
 
     #[cfg(feature = "time")]
@@ -246,6 +185,65 @@ pub mod r#type {
                 time::Month::try_from(value.month as u8)?,
                 value.day as u8,
             )?)
+        }
+    }
+
+    #[cfg(feature = "time")]
+    impl std::str::FromStr for Date {
+        type Err = time::Error;
+
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            let date =
+                time::OffsetDateTime::parse(&s, &time::format_description::well_known::Rfc3339)
+                    .map(Date::from);
+
+            match date {
+                Ok(dt) => Ok(dt),
+                Err(_e) => {
+                    let my_format = time::macros::format_description!("[day]-[month]-[year]");
+                    let date = time::Date::parse(&s, &my_format)?;
+                    Ok(Date::from(date))
+                }
+            }
+        }
+    }
+
+    #[cfg(feature = "time")]
+    impl TryFrom<String> for Date {
+        type Error = time::Error;
+
+        fn try_from(value: String) -> Result<Self, Self::Error> {
+            <Date as std::str::FromStr>::from_str(&value)
+        }
+    }
+
+    #[cfg(all(feature = "serde", feature = "time"))]
+    impl TryFrom<DateItem> for Date {
+        type Error = time::Error;
+
+        fn try_from(value: DateItem) -> Result<Self, Self::Error> {
+            match value {
+                DateItem::String(ref string) => <Date as std::str::FromStr>::from_str(string),
+                DateItem::Date { year, month, day } => Ok(Date { year, month, day }),
+                DateItem::Timestamp { seconds, nanos } => {
+                    let odt = time::OffsetDateTime::try_from(crate::google::protobuf::Timestamp {
+                        seconds,
+                        nanos,
+                    })?;
+                    Ok(Self {
+                        year: odt.year(),
+                        month: odt.month() as i32,
+                        day: odt.day() as i32,
+                    })
+                }
+            }
+        }
+    }
+
+    #[cfg(all(feature = "serde", feature = "time"))]
+    impl From<Date> for String {
+        fn from(value: Date) -> Self {
+            format!("{}-{}-{}", value.year, value.month, value.day)
         }
     }
 }
