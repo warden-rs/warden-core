@@ -136,7 +136,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ".configuration.rule.RuleConfigurationRequest",
                 "#[derive(utoipa::IntoParams)]",
             )
-            .field_attribute("cre_dt_tm", "#[schema(value_type = String, format = Date)]");
+            .field_attribute("cre_dt_tm", "#[schema(value_type = String, format = DateTime)]");
 
         #[cfg(all(feature = "openapi", feature = "configuration"))]
         let config = config.field_attribute(

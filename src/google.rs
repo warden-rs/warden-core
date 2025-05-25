@@ -206,7 +206,7 @@ pub mod r#type {
                 match date {
                     Ok(dt) => Ok(dt),
                     Err(_e) => {
-                        let my_format = time::macros::format_description!("[day]-[month]-[year]");
+                        let my_format = time::macros::format_description!("[year]-[month]-[day]");
                         let date = time::Date::parse(&s, &my_format)?;
                         Ok(Date::from(date))
                     }
@@ -247,7 +247,18 @@ pub mod r#type {
 
         impl From<Date> for String {
             fn from(value: Date) -> Self {
-                format!("{}-{}-{}", value.year, value.month, value.day)
+                let prepend = |value: i32| -> String {
+                    match value.lt(&10) {
+                        true => format!("0{}", value),
+                        false => value.to_string(),
+                    }
+                };
+                format!(
+                    "{}-{}-{}",
+                    value.year,
+                    prepend(value.month),
+                    prepend(value.day),
+                )
             }
         }
     }
