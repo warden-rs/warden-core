@@ -113,8 +113,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let config = config.type_attribute(
             ".",
             "#[derive(serde::Serialize, serde::Deserialize)] #[serde(rename_all = \"snake_case\")]",
-        )
-        .type_attribute(".google.protobuf.Timestamp", "#[serde(try_from = \"crate::google::protobuf::DateItem\")] #[serde(into = \"String\")]")
+        );
+
+        #[cfg(feature = "time")]
+        let config = config.type_attribute(".google.protobuf.Timestamp", "#[serde(try_from = \"crate::google::protobuf::DateItem\")] #[serde(into = \"String\")]")
         .type_attribute(".google.type.Date", "#[serde(try_from = \"crate::google::protobuf::DateItem\")] #[serde(into = \"String\")]");
 
         #[cfg(feature = "openapi")]
