@@ -36,7 +36,7 @@ pub mod protobuf {
         }
     }
 
-    #[cfg(feature = "serde-time")]
+    #[cfg(feature = "time")]
     pub(crate) mod serialise_dt {
         use std::{fmt, marker::PhantomData, str::FromStr};
 

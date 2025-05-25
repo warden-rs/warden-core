@@ -107,7 +107,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut config = tonic_build::configure();
 
         #[allow(unused_mut)]
-        #[cfg(feature = "serde")]
+        #[cfg(feature = "configuration")]
         let mut config = config.type_attribute(
             ".configuration.typology.TypologyConfigurationRequest",
             "#[derive(Hash, Eq)]",
@@ -120,10 +120,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "#[derive(serde::Serialize, serde::Deserialize)] #[serde(rename_all = \"snake_case\")]",
         );
 
-        #[cfg(feature = "serde-time")]
-        let mut config =
-            config.type_attribute(".google.type.Date", "#[serde(try_from = \"String\")]");
+        // #[cfg(feature = "serde-time")]
+        // let mut config =
+        //     config.type_attribute(".google.type.Date", "#[serde(try_from = \"String\")]");
 
+        #[cfg(feature = "time")]
         for i in paths.iter() {
             config = config.field_attribute(
                 i,
@@ -131,6 +132,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             );
         }
 
+        #[cfg(feature = "time")]
         for i in opt_paths.iter() {
             config = config.field_attribute(
                 i,
@@ -156,7 +158,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .type_attribute(
                 ".configuration.rule.RuleConfigurationRequest",
                 "#[derive(utoipa::IntoParams)]",
-            );
+            )
+            .field_attribute("cre_dt_tm", "#[schema(value_type = String, format = Date)]");
 
         #[cfg(all(feature = "openapi", feature = "configuration"))]
         let config = config.field_attribute(
