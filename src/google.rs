@@ -14,37 +14,26 @@ pub mod protobuf {
     }
 
     #[cfg(feature = "time")]
-    impl std::str::FromStr for Timestamp {
-        type Err = void::Void;
-
-        fn from_str(s: &str) -> Result<Self, Self::Err> {
-            let time =
-                time::OffsetDateTime::parse(s, &time::format_description::well_known::Rfc3339)
-                    .unwrap();
-            Ok(Timestamp::try_from(time).unwrap())
-        }
-    }
-
-    #[cfg(feature = "time")]
     impl TryFrom<Timestamp> for time::OffsetDateTime {
-        type Error = time::error::ComponentRange;
+        type Error = time::Error;
 
         fn try_from(value: Timestamp) -> Result<Self, Self::Error> {
             let dt = time::OffsetDateTime::from_unix_timestamp(value.seconds)?;
 
-            dt.replace_nanosecond(value.nanos as u32)
+            Ok(dt.replace_nanosecond(value.nanos as u32)?)
         }
     }
 
-    #[cfg(feature = "time")]
+    #[cfg(all(feature = "time", feature = "iso20022"))]
     pub(crate) mod serialise_dt {
-        use std::{fmt, marker::PhantomData, str::FromStr};
+
+        use std::{fmt, marker::PhantomData};
 
         use serde::{
             Deserialize, Deserializer, Serializer,
             de::{self, MapAccess, Visitor},
         };
-        use time::OffsetDateTime;
+        use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 
         use super::Timestamp;
 
@@ -52,7 +41,7 @@ pub mod protobuf {
             datetime: &Timestamp,
             serializer: S,
         ) -> Result<S::Ok, S::Error> {
-            let value = OffsetDateTime::try_from(*datetime).unwrap();
+            let value = OffsetDateTime::try_from(*datetime).map_err(serde::ser::Error::custom)?;
             time::serde::rfc3339::serialize(&value, serializer)
         }
 
@@ -78,7 +67,10 @@ pub mod protobuf {
                 where
                     E: de::Error,
                 {
-                    Ok(FromStr::from_str(value).unwrap())
+                    let timestamp =
+                        time::OffsetDateTime::parse(value, &Rfc3339).map_err(de::Error::custom)?;
+
+                    Timestamp::try_from(timestamp).map_err(de::Error::custom)
                 }
 
                 fn visit_map<M>(self, map: M) -> Result<Timestamp, M::Error>
@@ -108,20 +100,21 @@ pub mod protobuf {
                 option: &Option<Timestamp>,
                 serializer: S,
             ) -> Result<S::Ok, S::Error> {
-                match option {
-                    Some(ts) => {
-                        let dt = OffsetDateTime::try_from(ts.clone())
-                            .map_err(serde::ser::Error::custom)?;
-                        serializer.serialize_some(&dt)
-                    }
-                    None => serializer.serialize_none(),
+                if let Some(ts) = option {
+                    let dt = OffsetDateTime::try_from(Timestamp {
+                        seconds: ts.seconds,
+                        nanos: ts.nanos,
+                    })
+                    .map_err(serde::ser::Error::custom)?;
+                    serializer.serialize_some(&dt)
+                } else {
+                    serializer.serialize_none()
                 }
             }
 
             pub fn deserialize<'de, D: Deserializer<'de>>(
                 deserializer: D,
             ) -> Result<Option<Timestamp>, D::Error> {
-                println!("DEBUG: option::deserialize hit");
                 struct StringOrStructOpt;
 
                 impl<'de> Visitor<'de> for StringOrStructOpt {
@@ -244,14 +237,15 @@ pub mod r#type {
     }
 
     #[cfg(feature = "time")]
-    impl From<Date> for time::Date {
-        fn from(value: Date) -> Self {
-            Self::from_calendar_date(
+    impl TryFrom<Date> for time::Date {
+        type Error = time::Error;
+
+        fn try_from(value: Date) -> Result<Self, Self::Error> {
+            Ok(Self::from_calendar_date(
                 value.year,
-                time::Month::try_from(value.month as u8).expect("invalid month"),
+                time::Month::try_from(value.month as u8)?,
                 value.day as u8,
-            )
-            .expect("invalid date")
+            )?)
         }
     }
 }
