@@ -25,6 +25,7 @@ message AggregationResult {
    string id = 1;
    string version = 2;
    repeated TypologyResult typology_results = 3;
+   bool review = 4;
 }
 
 message RuleResult {
