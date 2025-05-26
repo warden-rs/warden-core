@@ -18,6 +18,13 @@ message Payload {
   configuration.routing.RoutingConfiguration routing = 5;
   TypologyResult typology_result = 6;
   RuleResult rule_result = 7;
+  AggregationResult aggregation_result = 8;
+}
+
+message AggregationResult {
+   string id = 1;
+   string version = 2;
+   repeated TypologyResult typology_results = 3;
 }
 
 message RuleResult {
