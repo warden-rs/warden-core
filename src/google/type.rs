@@ -42,6 +42,12 @@ where
     }
 }
 
+impl From<Money> for f64 {
+    fn from(m: Money) -> Self {
+        m.units as f64 + (m.nanos as f64) / 1_000_000_000.0
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -107,6 +113,74 @@ mod tests {
             let result = Money::try_from((1.0, code));
             assert_eq!(result, Err(MoneyError::InvalidCurrencyCode));
         }
+    }
+
+    #[test]
+    fn test_money_to_f64_positive() {
+        let money = Money {
+            currency_code: "USD".to_string(),
+            units: 1,
+            nanos: 750_000_000,
+        };
+        let value: f64 = money.into();
+        assert_eq!(value, 1.75);
+    }
+
+    #[test]
+    fn test_money_to_f64_negative() {
+        let money = Money {
+            currency_code: "EUR".to_string(),
+            units: -1,
+            nanos: -250_000_000,
+        };
+        let value: f64 = money.into();
+        assert_eq!(value, -1.25);
+    }
+
+    #[test]
+    fn test_money_to_f64_zero() {
+        let money = Money {
+            currency_code: "JPY".to_string(),
+            units: 0,
+            nanos: 0,
+        };
+        let value: f64 = money.into();
+        assert_eq!(value, 0.0);
+    }
+
+    #[test]
+    fn test_money_to_f64_fractional_positive() {
+        let money = Money {
+            currency_code: "USD".to_string(),
+            units: 0,
+            nanos: 1,
+        };
+        let value: f64 = money.into();
+        assert_eq!(value, 1.0e-9);
+    }
+
+    #[test]
+    fn test_money_to_f64_fractional_negative() {
+        let money = Money {
+            currency_code: "USD".to_string(),
+            units: 0,
+            nanos: -1,
+        };
+        let value: f64 = money.into();
+        assert_eq!(value, -1.0e-9);
+    }
+
+    #[test]
+    fn test_round_trip_conversion() {
+        let original = 1234.567_890_123;
+        let money = Money::try_from((original, "USD")).unwrap();
+        let back: f64 = money.into();
+        assert!(
+            (original - back).abs() < 1e-9,
+            "got {}, expected {}",
+            back,
+            original
+        );
     }
 }
 
