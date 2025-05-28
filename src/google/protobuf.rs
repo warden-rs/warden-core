@@ -18,6 +18,9 @@ pub enum DateItem {
     Date { year: i32, month: i32, day: i32 },
 }
 
+#[cfg(feature = "serde")]
+mod impls;
+
 #[cfg(feature = "time")]
 mod utils {
     use super::{DateItem, Timestamp};

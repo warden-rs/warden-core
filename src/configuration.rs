@@ -58,6 +58,7 @@ pub mod typology {
 
 pub mod routing {
     tonic::include_proto!("configuration.routing");
+
 }
 
 pub mod rule {
