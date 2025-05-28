@@ -1,4 +1,6 @@
-use super::*;
+use crate::google::protobuf::{value, ListValue, NullValue, Struct, Value};
+
+use super::GenericParameter;
 
 impl TryFrom<serde_json::Value> for value::Kind {
     type Error = String;
@@ -93,9 +95,6 @@ impl From<value::Kind> for GenericParameter {
         Self(value.into())
     }
 }
-
-#[derive(Debug)]
-pub struct GenericParameter(serde_json::Value);
 
 impl serde::Serialize for GenericParameter {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

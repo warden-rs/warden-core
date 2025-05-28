@@ -3,3 +3,5 @@ pub mod protobuf;
 
 /// Additional types
 pub mod r#type;
+
+mod helpers;
