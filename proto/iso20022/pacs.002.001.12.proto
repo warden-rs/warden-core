@@ -2,7 +2,7 @@ syntax = "proto2";
 package iso20022.pacs002;
 
 import "google/protobuf/timestamp.proto";
-import "proto/google/date.proto";
+import "google/type/date.proto";
 
 message AccountIdentification4Choice {
   required string i_b_a_n = 1;

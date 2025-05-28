@@ -3,7 +3,6 @@ syntax = "proto3";
 package configuration.rule;
 
 import "google/protobuf/struct.proto";
-import "proto/google/struct.proto";
 
 message Timeframe {
   double threshold = 1;
@@ -28,9 +27,7 @@ message Case {
 }
 
 message Config {
-  // no serde yet :(  optional google.protobuf.Value parameters = 1;
-  // workaround dupe the type locally, and add derives there
-  optional google.custom.Value parameters = 1;
+  optional google.protobuf.Value parameters = 1;
   repeated OutcomeResult exit_conditions = 2;
   repeated Band bands = 3;
   repeated Case cases = 4;

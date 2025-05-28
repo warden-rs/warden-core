@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package configuration.typology;
 
-import "proto/google/struct.proto";
-
 message Workflow {
   double alert_threshold = 1;
   optional double interdiction_threshold = 2;

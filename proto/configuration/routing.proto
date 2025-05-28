@@ -59,4 +59,3 @@ service MutateRouting {
   rpc UpdateRoutingConfiguration (UpdateRoutingRequest) returns (RoutingConfiguration);
   rpc DeleteRoutingConfiguration (DeleteConfigurationRequest) returns (RoutingConfiguration);
 }
-

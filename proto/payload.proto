@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package payload;
 
-import "proto/iso20022/pacs.008.001.12.proto";
-import "proto/iso20022/pacs.002.001.12.proto";
+import "iso20022/pacs.008.001.12.proto";
+import "iso20022/pacs.002.001.12.proto";
 import "google/protobuf/timestamp.proto";
-import "proto/configuration/routing.proto";
-import "proto/configuration/typology.proto";
+import "configuration/routing.proto";
+import "configuration/typology.proto";
 
 message Payload {
   oneof transaction {
