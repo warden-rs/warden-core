@@ -26,6 +26,7 @@ impl Entity {
         let mut res: Vec<&'static str> = vec![
             "proto/google/type/date.proto",
             "proto/google/type/money.proto",
+            "proto/google/type/latlng.proto",
         ];
 
         #[cfg(any(feature = "iso20022", feature = "payload"))]

@@ -5,6 +5,7 @@ package pseudonyms.transaction_relationship;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/type/money.proto";
+import "google/type/latlng.proto";
 
 // TransactionRelationship message definition
 message TransactionRelationship {
@@ -13,12 +14,11 @@ message TransactionRelationship {
   optional google.type.Money amt = 3;
   google.protobuf.Timestamp cre_dt_tm = 4;
   string end_to_end_id = 5;
-  optional double lat = 6;
-  optional double long = 7;
-  string msg_id = 8;
-  string pmt_inf_id = 9;
-  string tx_tp = 10;
-  optional string tx_sts = 11;
+  optional google.type.LatLng latlng = 6;
+  string msg_id = 7;
+  string pmt_inf_id = 8;
+  string tx_tp = 9;
+  optional string tx_sts = 10;
 }
 
 message CreatePseudonymRequest {
