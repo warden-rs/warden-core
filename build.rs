@@ -121,10 +121,9 @@ fn build_proto(package: &str, entity: Entity) {
     #[cfg(feature = "openapi")]
     let config = add_openapi(config);
 
-
     #[cfg(feature = "time")]
-        let config = config.type_attribute(".google.protobuf.Timestamp", "#[serde(try_from = \"crate::google::helpers::DateItem\")] #[serde(into = \"String\")]")
-        .type_attribute(".google.type.Date", "#[serde(try_from = \"crate::google::helpers::DateItem\")] #[serde(into = \"String\")]");
+        let config = config.type_attribute(".google.protobuf.Timestamp", "#[serde(try_from = \"crate::google::helpers::time_util::DateItem\")] #[serde(into = \"String\")]")
+        .type_attribute(".google.type.Date", "#[serde(try_from = \"crate::google::helpers::time_util::DateItem\")] #[serde(into = \"String\")]");
 
     let include_paths = &["proto"];
 
@@ -223,6 +222,6 @@ fn update_serde_for_config(config: tonic_build::Builder) -> tonic_build::Builder
             )
             .type_attribute(
                 ".google.protobuf.Value",
-                "#[serde(try_from = \"serde_json::Value\")] #[serde(into = \"crate::google::helpers::GenericParameter\")]",
+                "#[serde(try_from = \"serde_json::Value\")] #[serde(into = \"crate::google::helpers::rule_help::GenericParameter\")]",
             )
 }

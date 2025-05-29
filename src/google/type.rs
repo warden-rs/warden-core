@@ -248,17 +248,19 @@ impl TryFrom<String> for Date {
 }
 
 #[cfg(feature = "time")]
-impl TryFrom<super::helpers::DateItem> for Date {
+impl TryFrom<super::helpers::time_util::DateItem> for Date {
     type Error = time::Error;
 
-    fn try_from(value: super::helpers::DateItem) -> Result<Self, Self::Error> {
+    fn try_from(value: super::helpers::time_util::DateItem) -> Result<Self, Self::Error> {
         match value {
-            super::helpers::DateItem::String(ref string) => {
+            super::helpers::time_util::DateItem::String(ref string) => {
                 <Date as std::str::FromStr>::from_str(string)
             }
             #[cfg(feature = "iso20022")]
-            super::helpers::DateItem::Date { year, month, day } => Ok(Date { year, month, day }),
-            super::helpers::DateItem::Timestamp { seconds, nanos } => {
+            super::helpers::time_util::DateItem::Date { year, month, day } => {
+                Ok(Date { year, month, day })
+            }
+            super::helpers::time_util::DateItem::Timestamp { seconds, nanos } => {
                 let odt = time::OffsetDateTime::try_from(crate::google::protobuf::Timestamp {
                     seconds,
                     nanos,

@@ -1,6 +1,20 @@
-use crate::google::protobuf::{value, ListValue, NullValue, Struct, Value};
+use crate::google::protobuf::{ListValue, NullValue, Struct, Value, value};
 
-use super::GenericParameter;
+#[derive(Debug)]
+/// Generic JSON value
+pub struct GenericParameter(pub(crate) serde_json::Value);
+
+impl From<Value> for GenericParameter {
+    fn from(value: Value) -> Self {
+        Self(value.into())
+    }
+}
+
+impl From<value::Kind> for GenericParameter {
+    fn from(value: value::Kind) -> Self {
+        Self(value.into())
+    }
+}
 
 impl TryFrom<serde_json::Value> for value::Kind {
     type Error = String;
@@ -81,18 +95,6 @@ impl From<ListValue> for serde_json::Value {
     fn from(l: ListValue) -> Self {
         let list = l.values.into_iter().map(serde_json::Value::from).collect();
         serde_json::Value::Array(list)
-    }
-}
-
-impl From<Value> for GenericParameter {
-    fn from(value: Value) -> Self {
-        Self(value.into())
-    }
-}
-
-impl From<value::Kind> for GenericParameter {
-    fn from(value: value::Kind) -> Self {
-        Self(value.into())
     }
 }
 

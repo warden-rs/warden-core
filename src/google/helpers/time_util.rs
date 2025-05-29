@@ -1,6 +1,18 @@
 use crate::google::protobuf::Timestamp;
 
-use super::DateItem;
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
+/// Date utility
+#[derive(Clone, Debug)]
+pub enum DateItem {
+    /// string
+    String(String),
+    /// ts
+    Timestamp { seconds: i64, nanos: i32 },
+    /// date
+    #[cfg(feature = "iso20022")]
+    Date { year: i32, month: i32, day: i32 },
+}
 
 impl TryFrom<DateItem> for Timestamp {
     type Error = time::Error;
@@ -67,7 +79,6 @@ impl TryFrom<Timestamp> for time::OffsetDateTime {
 }
 
 #[cfg(test)]
-#[cfg(feature = "time")]
 mod tests {
     use super::*;
     use time::{Duration, OffsetDateTime};
