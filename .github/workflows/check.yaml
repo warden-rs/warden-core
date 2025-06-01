@@ -86,5 +86,7 @@ jobs:
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: cargo install cargo-hack
+        uses: taiki-e/install-action@cargo-hack
       - name: cargo hack +${{ matrix.msrv }} 
         run: cargo hack --clean-per-run --feature-powerset check
