@@ -73,7 +73,7 @@ jobs:
     strategy:
       matrix:
         msrv: ["1.85.0"]
-    name: ubuntu / ${{ matrix.msrv }}
+    name: msrv / ${{ matrix.msrv }}
     steps:
       - uses: actions/checkout@v4
         with:
